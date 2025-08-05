@@ -1,0 +1,40 @@
+name: Random Daily Commits
+
+on:
+  schedule:
+    - cron: "45 18 * * *"  # 12.15 AM IST (UTC+5:30 → UTC = -5:30)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Create random commits
+        run: |
+          echo "import random, subprocess, time, datetime
+          
+print('Generating 5–12 random commits for today...')
+n = random.randint(5, 12)
+
+for i in range(n):
+    with open('README.md', 'a') as f:
+        f.write(f'\\nRandom commit {i+1} at {datetime.datetime.now()}')
+    subprocess.run(['git','add','.'])
+    subprocess.run(['git','commit','-m',f'Random auto-commit {i+1}'])
+    sleep_time = random.randint(600, 7200)  # wait 10 mins to 2 hrs
+    print(f'Committed {i+1}, will sleep {sleep_time//60} mins')
+    time.sleep(sleep_time)
+          " | python
+
+      - name: Push commits
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git push
