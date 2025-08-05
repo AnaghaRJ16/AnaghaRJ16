@@ -1,0 +1,30 @@
+name: Auto Daily Commit                ← (Name of the workflow)
+
+on:
+  schedule:
+    - cron:  "0 3 * * *"              ← Run every day at 8:30 AM IST (3 AM UTC)
+  workflow_dispatch:                 ← (Optional) lets you run it manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest           ← Use a virtual Linux machine
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3    ← Pull your repo into the VM
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x        ← Install Python
+
+      - name: Run Update Script
+        run: python update.py        ← Run your script (update.py)
+
+      - name: Commit & Push Changes
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git add .
+          git commit -m "Automated profile update" || echo "No changes to commit"
+          git push                   ← Push changes back to GitHub
