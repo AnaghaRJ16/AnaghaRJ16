@@ -1,0 +1,30 @@
+name: ⏰ Random Daily Commits
+
+on:
+  schedule:
+    - cron: "0 0 * * *"  # Runs once at 5:30 AM IST
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Generate Random Commits
+        run: |
+          NUM_COMMITS=$(( ( RANDOM % 13 ) + 2 )) # Random number between 2 and 14
+          echo "Making $NUM_COMMITS commits today..."
+
+          for ((i=1; i<=NUM_COMMITS; i++))
+          do
+            echo "Commit number $i" >> commit_log.txt
+            git config --global user.email "actions@github.com"
+            git config --global user.name "github-actions"
+            git add .
+            git commit -m "Auto commit $i on $(date)"
+            sleep $(( ( RANDOM % 300 ) + 60 ))  # Sleep 1–5 mins between commits
+          done
+
+          git push
